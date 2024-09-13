@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.5.56">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Magnus Johansson">
-<meta name="dcterms.date" content="2024-09-12">
+<meta name="dcterms.date" content="2024-09-13">
 <title>Questionnaire on Well-Being (QWB)</title>
 <style>
 code{white-space: pre-wrap;}
@@ -52,7 +52,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}</style>
 
 <script>/*!
  * clipboard.js v2.0.11
@@ -3117,7 +3137,7 @@ background: #009ca6;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2024-09-12</p>
+        <p class="date">2024-09-13</p>
       </div>
     </div>
     
@@ -3133,12 +3153,14 @@ background: #009ca6;
 <li>
 <a href="#reproducing-cfa" id="toc-reproducing-cfa" class="nav-link active" data-scroll-target="#reproducing-cfa"><span class="header-section-number">1</span> Reproducing CFA</a>
   <ul class="collapse">
-<li><a href="#robust-fit-metrics" id="toc-robust-fit-metrics" class="nav-link" data-scroll-target="#robust-fit-metrics"><span class="header-section-number">1.1</span> Robust fit metrics</a></li>
+<li><a href="#scaled-fit-metrics" id="toc-scaled-fit-metrics" class="nav-link" data-scroll-target="#scaled-fit-metrics"><span class="header-section-number">1.1</span> Scaled fit metrics</a></li>
   <li><a href="#modification-indices" id="toc-modification-indices" class="nav-link" data-scroll-target="#modification-indices"><span class="header-section-number">1.2</span> Modification indices</a></li>
+  <li><a href="#dynamic-cutoff-values" id="toc-dynamic-cutoff-values" class="nav-link" data-scroll-target="#dynamic-cutoff-values"><span class="header-section-number">1.3</span> Dynamic cutoff values</a></li>
   </ul>
 </li>
-  <li><a href="#software-used" id="toc-software-used" class="nav-link" data-scroll-target="#software-used"><span class="header-section-number">2</span> Software used</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">3</span> References</a></li>
+  <li><a href="#summary-comments" id="toc-summary-comments" class="nav-link" data-scroll-target="#summary-comments"><span class="header-section-number">2</span> Summary comments</a></li>
+  <li><a href="#software-used" id="toc-software-used" class="nav-link" data-scroll-target="#software-used"><span class="header-section-number">3</span> Software used</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">4</span> References</a></li>
   </ul><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="cfa.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
 </div>
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content"><section id="reproducing-cfa" class="level2" data-number="1"><h2 data-number="1" class="anchored" data-anchor-id="reproducing-cfa">
@@ -3163,30 +3185,140 @@ background: #009ca6;
 <pre><code>This is lavaan 0.6-18
 lavaan is FREE software! Please report any bugs.</code></pre>
 </div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Code copied from OSF repo.</p>
+<p>Questionnaire on Well-Being (QWB), 18 items, each item is scored on a scale of 0 to 4 <span class="citation" data-cites="hlynsson_evaluating_2024">(<a href="#ref-hlynsson_evaluating_2024" role="doc-biblioref">Hlynsson et al. 2024</a>)</span>. Data from the same paper. We’ll use the data from the second study that was used in the CFA in the paper.</p>
+<p>Code and data were retrieved from the paper’s <a href="https://osf.io/gsc3r/">OSF page</a>. Really great to see these materials made available, it is such an important step towards improving the standards of science!</p>
 <div class="cell">
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Read in study two data -------------------------------------------------------</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="co"># Read in study two data -------------------------------------------------------</span></span>
 <span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="st">&quot;data/study_two.xlsx&quot;</span><span class="op">)</span></span>
-<span><span class="co"># swb items extract</span></span>
-<span><span class="va">swbNY</span> <span class="op">&lt;-</span> <span class="va">dd</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">onefactor</span> <span class="op">&lt;-</span> <span class="st">&#39;f1 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +</span></span>
 <span><span class="st">                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + </span></span>
 <span><span class="st">                    swb16 + swb17 + swb18&#39;</span></span>
 <span></span>
 <span><span class="co"># Fit the model to the data</span></span>
-<span><span class="va">cfamodel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html">sem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">onefactor</span>, data <span class="op">=</span> <span class="va">dd</span>, estimator <span class="op">=</span> <span class="st">&quot;WLSMV&quot;</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span><span class="va">cfamodel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html">sem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">onefactor</span>, data <span class="op">=</span> <span class="va">dd</span>, estimator <span class="op">=</span> <span class="st">&quot;WLSMV&quot;</span><span class="op">)</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: lavaan-&gt;lav_options_est_dwls():  
    estimator &quot;DWLS&quot; is not recommended for continuous data. Did you forget to 
    set the ordered= argument?</code></pre>
 </div>
 </div>
-<p>Apparently, the warning message was ignored, since the <code>ordered = TRUE</code> code was missing?</p>
-<p>So let’s redo the CFA function call with this option added, otherwise the WLSMV estimator, which was correctly mentioned in the paper does not work.</p>
+<p>This warning message is important! For WLSMV to work properly, one also needs to specify <code>ordered = TRUE</code>.</p>
+<p>Let’s see if we can reproduce the fit metrics reported in the paper (p.15), using the output from the misspecified function call above.</p>
 <div class="cell">
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cfamodel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html">sem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">onefactor</span>, data <span class="op">=</span> <span class="va">dd</span>, estimator <span class="op">=</span> <span class="st">&quot;WLSMV&quot;</span>, ordered <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cfamodel</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span>standardized<span class="op">=</span><span class="cn">T</span>, ci<span class="op">=</span><span class="cn">F</span>, fit.measures<span class="op">=</span> <span class="cn">TRUE</span>, <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lavaan 0.6-18 ended normally after 33 iterations
+
+  Estimator                                       DWLS
+  Optimization method                           NLMINB
+  Number of model parameters                        36
+
+                                                  Used       Total
+  Number of observations                          1561        1795
+
+Model Test User Model:
+                                              Standard      Scaled
+  Test Statistic                               603.028    1576.509
+  Degrees of freedom                               135         135
+  P-value (Chi-square)                           0.000       0.000
+  Scaling correction factor                                  0.391
+  Shift parameter                                           33.384
+    simple second-order correction                                
+
+Model Test Baseline Model:
+
+  Test statistic                             40316.305    8701.238
+  Degrees of freedom                               153         153
+  P-value                                        0.000       0.000
+  Scaling correction factor                                  4.698
+
+User Model versus Baseline Model:
+
+  Comparative Fit Index (CFI)                    0.988       0.831
+  Tucker-Lewis Index (TLI)                       0.987       0.809
+                                                                  
+  Robust Comparative Fit Index (CFI)                         0.986
+  Robust Tucker-Lewis Index (TLI)                            0.984
+
+Root Mean Square Error of Approximation:
+
+  RMSEA                                          0.047       0.083
+  90 Percent confidence interval - lower         0.043       0.079
+  90 Percent confidence interval - upper         0.051       0.086
+  P-value H_0: RMSEA &lt;= 0.050                    0.887       0.000
+  P-value H_0: RMSEA &gt;= 0.080                    0.000       0.892
+                                                                  
+  Robust RMSEA                                               0.052
+  90 Percent confidence interval - lower                     0.049
+  90 Percent confidence interval - upper                     0.054
+  P-value H_0: Robust RMSEA &lt;= 0.050                         0.106
+  P-value H_0: Robust RMSEA &gt;= 0.080                         0.000
+
+Standardized Root Mean Square Residual:
+
+  SRMR                                           0.053       0.053
+
+Parameter Estimates:
+
+  Standard errors                           Robust.sem
+  Information                                 Expected
+  Information saturated (h1) model        Unstructured
+
+Latent Variables:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+  f1 =~                                                                 
+    swb1              1.000                               0.639    0.695
+    swb2              0.861    0.035   24.575    0.000    0.550    0.544
+    swb3              0.550    0.036   15.121    0.000    0.352    0.413
+    swb4              0.876    0.034   25.809    0.000    0.560    0.647
+    swb5              0.929    0.039   23.849    0.000    0.594    0.635
+    swb6              0.967    0.040   24.054    0.000    0.618    0.656
+    swb7              1.064    0.036   29.625    0.000    0.680    0.765
+    swb8              1.142    0.034   33.522    0.000    0.730    0.808
+    swb9              1.124    0.036   30.957    0.000    0.718    0.780
+    swb10             1.182    0.040   29.564    0.000    0.755    0.751
+    swb11             1.202    0.045   26.933    0.000    0.768    0.730
+    swb12             0.872    0.037   23.385    0.000    0.557    0.654
+    swb13             0.707    0.039   17.969    0.000    0.452    0.493
+    swb14             0.980    0.035   27.907    0.000    0.626    0.666
+    swb15             1.202    0.043   28.182    0.000    0.768    0.743
+    swb16             1.104    0.036   30.255    0.000    0.706    0.715
+    swb17             1.097    0.040   27.296    0.000    0.701    0.728
+    swb18             0.981    0.045   21.770    0.000    0.627    0.587
+
+Variances:
+                   Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+   .swb1              0.436    0.018   24.187    0.000    0.436    0.517
+   .swb2              0.721    0.025   28.874    0.000    0.721    0.704
+   .swb3              0.601    0.024   24.670    0.000    0.601    0.829
+   .swb4              0.435    0.017   25.780    0.000    0.435    0.581
+   .swb5              0.523    0.019   27.276    0.000    0.523    0.597
+   .swb6              0.506    0.019   26.097    0.000    0.506    0.570
+   .swb7              0.327    0.014   22.718    0.000    0.327    0.414
+   .swb8              0.283    0.012   23.155    0.000    0.283    0.347
+   .swb9              0.332    0.013   25.432    0.000    0.332    0.392
+   .swb10             0.441    0.018   24.399    0.000    0.441    0.436
+   .swb11             0.518    0.022   23.263    0.000    0.518    0.468
+   .swb12             0.415    0.017   24.855    0.000    0.415    0.572
+   .swb13             0.634    0.022   28.570    0.000    0.634    0.757
+   .swb14             0.493    0.019   26.580    0.000    0.493    0.557
+   .swb15             0.480    0.020   24.323    0.000    0.480    0.449
+   .swb16             0.476    0.019   25.534    0.000    0.476    0.489
+   .swb17             0.436    0.019   22.826    0.000    0.436    0.470
+   .swb18             0.749    0.028   26.616    0.000    0.749    0.656
+    f1                0.408    0.026   15.931    0.000    1.000    1.000</code></pre>
+</div>
+</div>
+<p>The “standard” column in the output looks like what has been reported in the paper (see quote below) regarding χ2, RMSEA, and CFI. Good to see that it is reproducible.</p>
+<blockquote class="blockquote">
+<p>A single-factor solution for the Confirmatory factor analysis for the Questionnaire on Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001, CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 [90% CI: 0.043, 0.051]. Thus, our single- factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</p>
+</blockquote>
+<p>Let’s run the CFA function call with <code>ordered = TRUE</code> added to make the WLSMV estimator, which was correctly described in the paper, work as intended.</p>
+<div class="cell">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cfamodel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/sem.html">sem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">onefactor</span>, data <span class="op">=</span> <span class="va">dd</span>, estimator <span class="op">=</span> <span class="st">&quot;WLSMV&quot;</span>, ordered <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">cfamodel2</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span>standardized<span class="op">=</span><span class="cn">T</span>, ci<span class="op">=</span><span class="cn">F</span>, fit.measures<span class="op">=</span> <span class="cn">TRUE</span>, <span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>lavaan 0.6-18 ended normally after 34 iterations
@@ -3367,89 +3499,85 @@ Variances:
     f1                0.547    0.018   29.873    0.000    1.000    1.000</code></pre>
 </div>
 </div>
-<p>Then it seems the wrong fit metrics were reported. From the paper (p.15):</p>
-<blockquote class="blockquote">
-<p>A single-factor solution for the Confirmatory factor analysis for the Questionnaire on Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001, CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 [90% CI: 0.043, 0.051]. Thus, our single- factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</p>
-</blockquote>
-<p>The differences from the metrics output above and found in the paper are partially due to the missing <code>ordered = TRUE</code> option, but also from using the wrong fit metrics for the WLSMV estimator.</p>
-<p>Robust values for RMSEA och CFI/TLI should be used, see <a href="https://lavaan.ugent.be/history/dot5.html#version-0.5-21" class="uri">https://lavaan.ugent.be/history/dot5.html#version-0.5-21</a>, och a “scaled” value for chi2. Also, SRMR is not the same when using <code>ordered = TRUE</code>, it changes from 0.53 to 0.60.</p>
-<section id="robust-fit-metrics" class="level3" data-number="1.1"><h3 data-number="1.1" class="anchored" data-anchor-id="robust-fit-metrics">
-<span class="header-section-number">1.1</span> Robust fit metrics</h3>
+<p>Before looking closer at the results and making comparisons to the published/reported metrics, we need to address the issue of reporting the correct model fit metrics. For WLSMV, the <a href="https://rpubs.com/dmcneish/1025400">.scaled metrics should be used</a>.</p>
+<p>Also, the Hu &amp; Bentler <span class="citation" data-cites="hu_cutoff_1999">(<a href="#ref-hu_cutoff_1999" role="doc-biblioref">1999</a>)</span> cutoff values references in the paper are not appropriate for ordinal data analyzed with the WLSMV estimator <span class="citation" data-cites="mcneish_dynamic_2023 savalei_computation_2018">(<a href="#ref-mcneish_dynamic_2023" role="doc-biblioref">McNeish 2023</a>; <a href="#ref-savalei_computation_2018" role="doc-biblioref">Savalei 2018</a>)</span>. The R-package <code>dynamic</code> can produce <a href="https://rpubs.com/dmcneish/1025400">appropriate cutoff values</a> for model fit indices. We’ll get into that after reviewing the scaled fit metrics.</p>
+<section id="scaled-fit-metrics" class="level3" data-number="1.1"><h3 data-number="1.1" class="anchored" data-anchor-id="scaled-fit-metrics">
+<span class="header-section-number">1.1</span> Scaled fit metrics</h3>
+<p>Another important issue is reporting the correct model fit metrics. For WLSMV, <a href="https://rpubs.com/dmcneish/1025400">the .scaled metrics should be used</a>.</p>
 <div class="cell">
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fit_metrics_robust</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">&quot;chisq.scaled&quot;</span>, <span class="st">&quot;df&quot;</span>, <span class="st">&quot;pvalue.scaled&quot;</span>, </span>
-<span>                         <span class="st">&quot;cfi.robust&quot;</span>, <span class="st">&quot;tli.robust&quot;</span>, <span class="st">&quot;rmsea.robust&quot;</span>, </span>
-<span>                        <span class="st">&quot;rmsea.ci.lower.robust&quot;</span>,<span class="st">&quot;rmsea.ci.upper.robust&quot;</span>,</span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">fit_metrics_scaled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">&quot;chisq.scaled&quot;</span>, <span class="st">&quot;df&quot;</span>, <span class="st">&quot;pvalue.scaled&quot;</span>, </span>
+<span>                        <span class="st">&quot;cfi.scaled&quot;</span>, <span class="st">&quot;tli.scaled&quot;</span>, <span class="st">&quot;rmsea.scaled&quot;</span>, </span>
+<span>                        <span class="st">&quot;rmsea.ci.lower.scaled&quot;</span>,<span class="st">&quot;rmsea.ci.upper.scaled&quot;</span>,</span>
 <span>                        <span class="st">&quot;srmr&quot;</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">mfit1</span> <span class="op">&lt;-</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">cfamodel2</span>, <span class="va">fit_metrics_robust</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">cfamodel2</span>, <span class="va">fit_metrics_scaled</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span>,<span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>Chi2 <span class="op">=</span> <span class="va">chisq.scaled</span>,</span>
-<span>         p <span class="op">=</span> <span class="va">pvalue.scaled</span>,</span>
-<span>         CFI <span class="op">=</span> <span class="va">cfi.robust</span>,</span>
-<span>         TLI <span class="op">=</span> <span class="va">tli.robust</span>,</span>
-<span>         RMSEA <span class="op">=</span> <span class="va">rmsea.robust</span>,</span>
-<span>         CI_low <span class="op">=</span> <span class="va">rmsea.ci.lower.robust</span>,</span>
-<span>         CI_high <span class="op">=</span> <span class="va">rmsea.ci.upper.robust</span>,</span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>Chi2.scaled <span class="op">=</span> <span class="va">chisq.scaled</span>,</span>
+<span>         p.scaled <span class="op">=</span> <span class="va">pvalue.scaled</span>,</span>
+<span>         CFI.scaled <span class="op">=</span> <span class="va">cfi.scaled</span>,</span>
+<span>         TLI.scaled <span class="op">=</span> <span class="va">tli.scaled</span>,</span>
+<span>         RMSEA.scaled <span class="op">=</span> <span class="va">rmsea.scaled</span>,</span>
+<span>         CI_low.scaled <span class="op">=</span> <span class="va">rmsea.ci.lower.scaled</span>,</span>
+<span>         CI_high.scaled <span class="op">=</span> <span class="va">rmsea.ci.upper.scaled</span>,</span>
 <span>         SRMR <span class="op">=</span> <span class="va">srmr</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html">add_column</a></span><span class="op">(</span>Model <span class="op">=</span> <span class="st">&quot;Full 18 items&quot;</span>, .before <span class="op">=</span> <span class="st">&quot;Chi2&quot;</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">mfit1</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 19%">
+<col style="width: 3%">
 <col style="width: 12%">
-<col style="width: 5%">
 <col style="width: 4%">
-<col style="width: 8%">
-<col style="width: 8%">
-<col style="width: 8%">
 <col style="width: 9%">
 <col style="width: 11%">
-<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 15%">
+<col style="width: 5%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: left;"></th>
-<th style="text-align: left;">Model</th>
-<th style="text-align: right;">Chi2</th>
+<th style="text-align: right;">Chi2.scaled</th>
 <th style="text-align: right;">df</th>
-<th style="text-align: right;">p</th>
-<th style="text-align: right;">CFI</th>
-<th style="text-align: right;">TLI</th>
-<th style="text-align: right;">RMSEA</th>
-<th style="text-align: right;">CI_low</th>
-<th style="text-align: right;">CI_high</th>
+<th style="text-align: right;">p.scaled</th>
+<th style="text-align: right;">CFI.scaled</th>
+<th style="text-align: right;">TLI.scaled</th>
+<th style="text-align: right;">RMSEA.scaled</th>
+<th style="text-align: right;">CI_low.scaled</th>
+<th style="text-align: right;">CI_high.scaled</th>
 <th style="text-align: right;">SRMR</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td style="text-align: left;">.</td>
-<td style="text-align: left;">Full 18 items</td>
 <td style="text-align: right;">2940.978</td>
 <td style="text-align: right;">135</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.831</td>
-<td style="text-align: right;">0.808</td>
-<td style="text-align: right;">0.126</td>
-<td style="text-align: right;">0.122</td>
-<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">0.93</td>
+<td style="text-align: right;">0.921</td>
+<td style="text-align: right;">0.115</td>
+<td style="text-align: right;">0.112</td>
+<td style="text-align: right;">0.119</td>
 <td style="text-align: right;">0.06</td>
 </tr></tbody>
 </table>
 </div>
 </div>
-<p>These metrics indicate severe issues. Let us review the modification indices.</p>
+<p>Again, these were the metrics reported in the paper:</p>
+<blockquote class="blockquote">
+<p>A single-factor solution for the Confirmatory factor analysis for the Questionnaire on Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001, CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 [90% CI: 0.043, 0.051]. Thus, our single- factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</p>
+</blockquote>
+<p>The differences from the model fit metrics output in the table above and found in the paper are partially due to the missing <code>ordered = TRUE</code> option, but also from reporting the wrong metrics for the WLSMV estimator.</p>
+<p>The correct model fit metrics indicate problems, no matter which cutoffs one would use, especially regarding RMSEA. Let us review the modification indices.</p>
 </section><section id="modification-indices" class="level3" data-number="1.2"><h3 data-number="1.2" class="anchored" data-anchor-id="modification-indices">
 <span class="header-section-number">1.2</span> Modification indices</h3>
+<p>We’ll filter the list and only present those with mi/χ2 &gt; 30.</p>
 <div class="cell">
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/modificationIndices.html">modificationIndices</a></span><span class="op">(</span><span class="va">cfamodel2</span>,</span>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/modificationIndices.html">modificationIndices</a></span><span class="op">(</span><span class="va">cfamodel2</span>,</span>
 <span>                    standardized <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span>row.names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mi</span> <span class="op">&gt;</span> <span class="fl">30</span>,</span>
-<span>         <span class="va">op</span> <span class="op">==</span> <span class="st">&quot;~~&quot;</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">mi</span> <span class="op">&gt;</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html">desc</a></span><span class="op">(</span><span class="va">mi</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span>,<span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3630,11 +3758,58 @@ Variances:
 </table>
 </div>
 </div>
-<p>Very large chi2 values due to residual correlations.</p>
-</section></section><section id="software-used" class="level2" data-number="2"><h2 data-number="2" class="anchored" data-anchor-id="software-used">
-<span class="header-section-number">2</span> Software used</h2>
+<p>Many very large mi/χ2 values due to residual correlations.</p>
+</section><section id="dynamic-cutoff-values" class="level3" data-number="1.3"><h3 data-number="1.3" class="anchored" data-anchor-id="dynamic-cutoff-values">
+<span class="header-section-number">1.3</span> Dynamic cutoff values</h3>
+<p>As mentioned earlier, the often used Hu &amp; Bentler <span class="citation" data-cites="hu_cutoff_1999">(<a href="#ref-hu_cutoff_1999" role="doc-biblioref">1999</a>)</span> cutoff values are based on simulations of continuous data and ML estimation. In order to establish useful cutoff values for the WLSMV estimator with ordinal data, we need to run simulations relevant to the current set of items and response data <span class="citation" data-cites="mcneish_dynamic_2023">(<a href="#ref-mcneish_dynamic_2023" role="doc-biblioref">McNeish 2023</a>)</span>. This has been implemented in the <a href="https://github.com/melissagwolf/dynamic?tab=readme-ov-file">development version</a> of <code>dynamic</code>.</p>
 <div class="cell">
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/melissagwolf/dynamic">dynamic</a></span><span class="op">)</span> <span class="co"># devtools::install_github(&quot;melissagwolf/dynamic&quot;) for development version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Beta version. Please report bugs: https://github.com/melissagwolf/dynamic/issues.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">dyncut</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/dynamic/man/catOne.html">catOne</a></span><span class="op">(</span><span class="va">cfamodel2</span>, reps <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">dyncut</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Your DFI cutoffs: 
+            SRMR  RMSEA CFI  
+Level-0     0.015 0.011 0.999
+Specificity 95%   95%   95%  
+                             
+Level-1     0.026 0.04  0.991
+Sensitivity 95%   95%   95%  
+                             
+Level-2     0.031 0.056 0.983
+Sensitivity 95%   95%   95%  
+                             
+Level-3     0.034 0.066 0.977
+Sensitivity 95%   95%   95%  
+
+Empirical fit indices: 
+ Chi-Square  df p-value   SRMR   RMSEA    CFI
+   2940.978 135       0   0.06   0.115   0.93
+
+ Notes:
+  -&#39;Sensitivity&#39; is % of hypothetically misspecified models correctly identified by cutoff in DFI simulation
+  -Cutoffs with 95% sensitivity are reported when possible
+  -If sensitivity is &lt;50%, cutoffs will be supressed </code></pre>
+</div>
+</div>
+<p>Explanations on Levels 0-3 from the <code>dynamic</code> <a href="https://rpubs.com/dmcneish/1025400">package vignette</a>:</p>
+<blockquote class="blockquote">
+<p>When there are 6 or more items, cfaOne will consider three levels of misspecification. As in catHB, the Level-0 row corresponds to the anticipated fit index values if the fitted model were the exact underlying population model. The Level-1 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-2 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-3 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between all item pairs.</p>
+</blockquote>
+<p>As we can see, the observed/empirical fit metrics from the data does not come close to even the Level-3 simulation based cutoff values.</p>
+</section></section><section id="summary-comments" class="level2" data-number="2"><h2 data-number="2" class="anchored" data-anchor-id="summary-comments">
+<span class="header-section-number">2</span> Summary comments</h2>
+<p>The 18 items do not fit a unidimensional model, due to issues with residual correlations and potential multidimensionality.</p>
+</section><section id="software-used" class="level2" data-number="3"><h2 data-number="3" class="anchored" data-anchor-id="software-used">
+<span class="header-section-number">3</span> Software used</h2>
+<div class="cell">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.4.1 (2024-06-14)
 Platform: aarch64-apple-darwin20
@@ -3654,29 +3829,61 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] lavaan_0.6-18   lubridate_1.9.3 forcats_1.0.0   stringr_1.5.1  
- [5] dplyr_1.1.4     purrr_1.0.2     readr_2.1.5     tidyr_1.3.1    
- [9] tibble_3.2.1    ggplot2_3.5.1   tidyverse_2.0.0 readxl_1.4.3   
+ [1] dynamic_1.1.0   patchwork_1.2.0 lavaan_0.6-18   lubridate_1.9.3
+ [5] forcats_1.0.0   stringr_1.5.1   dplyr_1.1.4     purrr_1.0.2    
+ [9] readr_2.1.5     tidyr_1.3.1     tibble_3.2.1    ggplot2_3.5.1  
+[13] tidyverse_2.0.0 readxl_1.4.3   
 
 loaded via a namespace (and not attached):
- [1] gtable_0.3.5      jsonlite_1.8.8    compiler_4.4.1    tidyselect_1.2.1 
- [5] parallel_4.4.1    scales_1.3.0      yaml_2.3.10       fastmap_1.2.0    
- [9] pbivnorm_0.6.0    R6_2.5.1          generics_0.1.3    knitr_1.48       
-[13] htmlwidgets_1.6.4 munsell_0.5.1     pillar_1.9.0      tzdb_0.4.0       
-[17] rlang_1.1.4       utf8_1.2.4        stringi_1.8.4     xfun_0.46        
-[21] quadprog_1.5-8    timechange_0.3.0  cli_3.6.3         withr_3.0.1      
-[25] magrittr_2.0.3    digest_0.6.36     grid_4.4.1        rstudioapi_0.16.0
-[29] hms_1.1.3         lifecycle_1.0.4   vctrs_0.6.5       mnormt_2.1.1     
-[33] evaluate_0.24.0   glue_1.7.0        cellranger_1.1.0  stats4_4.4.1     
-[37] fansi_1.0.6       colorspace_2.1-1  rmarkdown_2.27    tools_4.4.1      
-[41] pkgconfig_2.0.3   htmltools_0.5.8.1</code></pre>
+ [1] tidyselect_1.2.1     R.utils_2.12.3       fastmap_1.2.0       
+ [4] digest_0.6.37        timechange_0.3.0     lifecycle_1.0.4     
+ [7] Deriv_4.1.3          dcurver_0.9.2        cluster_2.1.6       
+[10] mirt_1.42            magrittr_2.0.3       compiler_4.4.1      
+[13] rlang_1.1.4          tools_4.4.1          utf8_1.2.4          
+[16] yaml_2.3.10          knitr_1.48           htmlwidgets_1.6.4   
+[19] mnormt_2.1.1         curl_5.2.2           Bayesrel_0.7.7      
+[22] withr_3.0.1          R.oo_1.26.0          grid_4.4.1          
+[25] stats4_4.4.1         fansi_1.0.6          colorspace_2.1-1    
+[28] future_1.34.0        progressr_0.14.0     GPArotation_2024.3-1
+[31] globals_0.16.3       scales_1.3.0         MASS_7.3-61         
+[34] GenOrd_1.4.0         cli_3.6.3            mvtnorm_1.3-1       
+[37] rmarkdown_2.27       vegan_2.6-8          generics_0.1.3      
+[40] rstudioapi_0.16.0    future.apply_1.11.2  SimDesign_2.17.1    
+[43] tzdb_0.4.0           sessioninfo_1.2.2    pbapply_1.7-2       
+[46] audio_0.1-11         splines_4.4.1        parallel_4.4.1      
+[49] cellranger_1.1.0     beepr_2.0            vctrs_0.6.5         
+[52] Matrix_1.7-0         jsonlite_1.8.8       hms_1.1.3           
+[55] listenv_0.9.1        testthat_3.2.1.1     snow_0.4-4          
+[58] parallelly_1.38.0    glue_1.7.0           semTools_0.5-6      
+[61] codetools_0.2-20     stringi_1.8.4        gtable_0.3.5        
+[64] quadprog_1.5-8       munsell_0.5.1        pillar_1.9.0        
+[67] brio_1.1.5           htmltools_0.5.8.1    R6_2.5.1            
+[70] Rdpack_2.6.1         simstandard_0.6.3    evaluate_0.24.0     
+[73] pbivnorm_0.6.0       lattice_0.22-6       rbibutils_2.2.16    
+[76] R.methodsS3_1.8.2    RPushbullet_0.3.4    Rcpp_1.0.13         
+[79] gridExtra_2.3        nlme_3.1-165         permute_0.9-7       
+[82] mgcv_1.9-1           xfun_0.46            pkgconfig_2.0.3     </code></pre>
 </div>
 </div>
-</section><section id="references" class="level2" data-number="3"><h2 data-number="3" class="anchored" data-anchor-id="references">
-<span class="header-section-number">3</span> References</h2>
+</section><section id="references" class="level2" data-number="4">
 <!-- -->
 
-</section><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section></div></main><!-- /main column --><script id="quarto-html-after-body" type="application/javascript">
+
+</section><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">
+4 References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-hlynsson_evaluating_2024" class="csl-entry" role="listitem">
+Hlynsson, Jón Ingi, Anders Sjöberg, Lars Ström, and Per Carlbring. 2024. <span>“Evaluating the Reliability and Validity of the <span>Questionnaire</span> on <span>Well</span>-<span>Being</span>: A Validation Study for a Clinically Informed Measurement of Subjective Well-Being.”</span> <em>Cognitive Behaviour Therapy</em> 0 (0): 1–23. <a href="https://doi.org/10.1080/16506073.2024.2402992">https://doi.org/10.1080/16506073.2024.2402992</a>.
+</div>
+<div id="ref-hu_cutoff_1999" class="csl-entry" role="listitem">
+Hu, Li‐tze, and Peter M. Bentler. 1999. <span>“Cutoff Criteria for Fit Indexes in Covariance Structure Analysis: <span>Conventional</span> Criteria Versus New Alternatives.”</span> <em>Structural Equation Modeling: A Multidisciplinary Journal</em> 6 (1): 1–55. <a href="https://doi.org/10.1080/10705519909540118">https://doi.org/10.1080/10705519909540118</a>.
+</div>
+<div id="ref-mcneish_dynamic_2023" class="csl-entry" role="listitem">
+McNeish, Daniel. 2023. <span>“Dynamic Fit Index Cutoffs for Categorical Factor Analysis with <span>Likert</span>-Type, Ordinal, or Binary Responses.”</span> <em>American Psychologist</em> 78 (9): 1061–75. <a href="https://doi.org/10.1037/amp0001213">https://doi.org/10.1037/amp0001213</a>.
+</div>
+<div id="ref-savalei_computation_2018" class="csl-entry" role="listitem">
+Savalei, Victoria. 2018. <span>“On the <span>Computation</span> of the <span>RMSEA</span> and <span>CFI</span> from the <span>Mean</span>-<span>And</span>-<span>Variance</span> <span>Corrected</span> <span>Test</span> <span>Statistic</span> with <span>Nonnormal</span> <span>Data</span> in <span>SEM</span>.”</span> <em>Multivariate Behavioral Research</em> 53 (3): 419–29. <a href="https://doi.org/10.1080/00273171.2018.1455142">https://doi.org/10.1080/00273171.2018.1455142</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-reuse"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div class="quarto-appendix-contents"><div><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></div></div></section></div></main><!-- /main column --><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
     const mode = bsSheetEl.getAttribute("data-mode");
@@ -4147,151 +4354,192 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
-<div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Questionnaire on Well-Being (QWB)&quot;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> &quot;CFA&quot;</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="an">title-block-banner:</span><span class="co"> &quot;#009ca6&quot;</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="an">title-block-banner-color:</span><span class="co"> &quot;#FFFFFF&quot;</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> </span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">  name: Magnus Johansson</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">  affiliation: RISE Research Institutes of Sweden</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">  affiliation-url: https://www.ri.se/shic</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">  orcid: 0000-0003-1669-592X</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="an">date-format:</span><span class="co"> iso</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="an">always_allow_html:</span><span class="co"> true</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: &quot;Table of contents&quot;</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">    embed-resources: true</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">    standalone: true</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">    page-layout: full</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">    mainfont: &#39;Lato&#39;</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="co">    monofont: &#39;Roboto Mono&#39;</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">    code-overflow: wrap</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">    code-link: true</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-dpi: 96</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="co">    layout-align: left</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a><span class="co">    linestretch: 1.6</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a><span class="co">    theme:</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a><span class="co">      - materia</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="co">      - custom.scss</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="co">    css: styles.css</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a><span class="co">    license: CC BY</span></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="co">  pdf:</span></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a><span class="co">    papersize: a4</span></span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a><span class="co">    documentclass: report </span></span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: true</span></span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: false</span></span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a><span class="co">  markdown: </span></span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a><span class="co">    wrap: 72</span></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a><span class="fu">## Reproducing CFA</span></span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
-<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>Code copied from OSF repo.</span>
-<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in study two data -------------------------------------------------------</span></span>
-<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data/study_two.xlsx&quot;</span>)</span>
-<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a><span class="co"># swb items extract</span></span>
-<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>swbNY <span class="ot">&lt;-</span> dd[, <span class="fu">c</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">19</span>)]</span>
-<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>onefactor <span class="ot">&lt;-</span> <span class="st">&#39;f1 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +</span></span>
-<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a><span class="st">                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + </span></span>
-<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a><span class="st">                    swb16 + swb17 + swb18&#39;</span></span>
-<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model to the data</span></span>
-<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a>cfamodel <span class="ot">&lt;-</span> <span class="fu">sem</span>(<span class="at">model =</span> onefactor, <span class="at">data =</span> dd, <span class="at">estimator =</span> <span class="st">&quot;WLSMV&quot;</span>)</span>
-<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>Apparently, the warning message was ignored, since the <span class="in">`ordered = TRUE`</span> code was missing?</span>
-<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>So let&#39;s redo the CFA function call with this option added, otherwise the WLSMV estimator, which was correctly mentioned in the paper does not work.</span>
-<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a>cfamodel2 <span class="ot">&lt;-</span> <span class="fu">sem</span>(<span class="at">model =</span> onefactor, <span class="at">data =</span> dd, <span class="at">estimator =</span> <span class="st">&quot;WLSMV&quot;</span>, <span class="at">ordered =</span> T)</span>
-<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a>cfamodel2 <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">standardized=</span>T, <span class="at">ci=</span>F, <span class="at">fit.measures=</span> <span class="cn">TRUE</span>, )</span>
-<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a>Then it seems the wrong fit metrics were reported. From the paper (p.15):</span>
-<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; A single-factor solution for the Confirmatory factor analysis for the Questionnaire on</span></span>
-<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001,</span></span>
-<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 </span><span class="co">[</span><span class="ot">90% CI: 0.043, 0.051</span><span class="co">]</span><span class="at">. Thus, our single-</span></span>
-<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</span></span>
-<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a>The differences from the metrics output above and found in the paper are partially due to the missing <span class="in">`ordered = TRUE`</span> option, but also from using the wrong fit metrics for the WLSMV estimator.</span>
-<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a>Robust values for RMSEA och CFI/TLI should be used, see <span class="ot">&lt;https://lavaan.ugent.be/history/dot5.html#version-0.5-21&gt;</span>, och a &quot;scaled&quot; value for chi2. Also, SRMR is not the same when using <span class="in">`ordered = TRUE`</span>, it changes from 0.53 to 0.60.</span>
-<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a><span class="fu">### Robust fit metrics</span></span>
-<span id="cb13-103"><a href="#cb13-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>fit_metrics_robust <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;chisq.scaled&quot;</span>, <span class="st">&quot;df&quot;</span>, <span class="st">&quot;pvalue.scaled&quot;</span>, </span>
-<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a>                         <span class="st">&quot;cfi.robust&quot;</span>, <span class="st">&quot;tli.robust&quot;</span>, <span class="st">&quot;rmsea.robust&quot;</span>, </span>
-<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;rmsea.ci.lower.robust&quot;</span>,<span class="st">&quot;rmsea.ci.upper.robust&quot;</span>,</span>
-<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;srmr&quot;</span>)</span>
-<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-112"><a href="#cb13-112" aria-hidden="true" tabindex="-1"></a>mfit1 <span class="ot">&lt;-</span> </span>
-<span id="cb13-113"><a href="#cb13-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitmeasures</span>(cfamodel2, fit_metrics_robust) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric),<span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Chi2 =</span> chisq.scaled,</span>
-<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a>         <span class="at">p =</span> pvalue.scaled,</span>
-<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>         <span class="at">CFI =</span> cfi.robust,</span>
-<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a>         <span class="at">TLI =</span> tli.robust,</span>
-<span id="cb13-121"><a href="#cb13-121" aria-hidden="true" tabindex="-1"></a>         <span class="at">RMSEA =</span> rmsea.robust,</span>
-<span id="cb13-122"><a href="#cb13-122" aria-hidden="true" tabindex="-1"></a>         <span class="at">CI_low =</span> rmsea.ci.lower.robust,</span>
-<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a>         <span class="at">CI_high =</span> rmsea.ci.upper.robust,</span>
-<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a>         <span class="at">SRMR =</span> srmr) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_column</span>(<span class="at">Model =</span> <span class="st">&quot;Full 18 items&quot;</span>, <span class="at">.before =</span> <span class="st">&quot;Chi2&quot;</span>)</span>
-<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(mfit1)</span>
-<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a>These metrics indicate severe issues. Let us review the modification indices.</span>
-<span id="cb13-131"><a href="#cb13-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-132"><a href="#cb13-132" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modification indices</span></span>
-<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a><span class="fu">modificationIndices</span>(cfamodel2,</span>
-<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>                    <span class="at">standardized =</span> T) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="at">row.names =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(mi <span class="sc">&gt;</span> <span class="dv">30</span>,</span>
-<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a>         op <span class="sc">==</span> <span class="st">&quot;~~&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-142"><a href="#cb13-142" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mi)) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-143"><a href="#cb13-143" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric),<span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span>
-<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a>Very large chi2 values due to residual correlations.</span>
-<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a><span class="fu">## Software used</span></span>
-<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb13-155"><a href="#cb13-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-156"><a href="#cb13-156" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
+<div class="sourceCode" id="cb21" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Questionnaire on Well-Being (QWB)&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> &quot;CFA&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="an">title-block-banner:</span><span class="co"> &quot;#009ca6&quot;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="an">title-block-banner-color:</span><span class="co"> &quot;#FFFFFF&quot;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> </span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">  name: Magnus Johansson</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">  affiliation: RISE Research Institutes of Sweden</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">  affiliation-url: https://www.ri.se/shic</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">  orcid: 0000-0003-1669-592X</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="an">date-format:</span><span class="co"> iso</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="an">always_allow_html:</span><span class="co"> true</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> </span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-title: &quot;Table of contents&quot;</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co">    embed-resources: true</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co">    standalone: true</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co">    page-layout: full</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">    mainfont: &#39;Lato&#39;</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co">    monofont: &#39;Roboto Mono&#39;</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co">    code-overflow: wrap</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co">    code-link: true</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="co">    fig-dpi: 96</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="co">    layout-align: left</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="co">    linestretch: 1.6</span></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a><span class="co">    theme:</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="co">      - materia</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="co">      - custom.scss</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="co">    css: styles.css</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a><span class="co">    license: CC BY</span></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a><span class="co">  pdf:</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="co">    papersize: a4</span></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="co">    documentclass: report </span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: true</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a><span class="co">  cache: true</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a><span class="an">editor_options:</span><span class="co"> </span></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a><span class="co">  markdown: </span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a><span class="co">    wrap: 72</span></span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a><span class="co">  chunk_output_type: console</span></span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a><span class="an">bibliography:</span><span class="co"> refs.bib</span></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a><span class="fu">## Reproducing CFA</span></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>Questionnaire on Well-Being (QWB), 18 items, each item is scored on a scale of 0 to 4 <span class="co">[</span><span class="ot">@hlynsson_evaluating_2024</span><span class="co">]</span>. Data from the same paper. We&#39;ll use the data from the second study that was used in the CFA in the paper.</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>Code and data were retrieved from the paper&#39;s <span class="co">[</span><span class="ot">OSF page</span><span class="co">](https://osf.io/gsc3r/)</span>. Really great to see these materials made available, it is such an important step towards improving the standards of science!</span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in study two data -------------------------------------------------------</span></span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;data/study_two.xlsx&quot;</span>)</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>onefactor <span class="ot">&lt;-</span> <span class="st">&#39;f1 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +</span></span>
+<span id="cb21-74"><a href="#cb21-74" aria-hidden="true" tabindex="-1"></a><span class="st">                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + </span></span>
+<span id="cb21-75"><a href="#cb21-75" aria-hidden="true" tabindex="-1"></a><span class="st">                    swb16 + swb17 + swb18&#39;</span></span>
+<span id="cb21-76"><a href="#cb21-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-77"><a href="#cb21-77" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model to the data</span></span>
+<span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>cfamodel <span class="ot">&lt;-</span> <span class="fu">sem</span>(<span class="at">model =</span> onefactor, <span class="at">data =</span> dd, <span class="at">estimator =</span> <span class="st">&quot;WLSMV&quot;</span>) </span>
+<span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>This warning message is important! For WLSMV to work properly, one also needs to specify <span class="in">`ordered = TRUE`</span>.</span>
+<span id="cb21-82"><a href="#cb21-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-83"><a href="#cb21-83" aria-hidden="true" tabindex="-1"></a>Let&#39;s see if we can reproduce the fit metrics reported in the paper (p.15), using the output from the misspecified function call above.</span>
+<span id="cb21-84"><a href="#cb21-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-87"><a href="#cb21-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-88"><a href="#cb21-88" aria-hidden="true" tabindex="-1"></a>cfamodel <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">standardized=</span>T, <span class="at">ci=</span>F, <span class="at">fit.measures=</span> <span class="cn">TRUE</span>, )</span>
+<span id="cb21-89"><a href="#cb21-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-90"><a href="#cb21-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-91"><a href="#cb21-91" aria-hidden="true" tabindex="-1"></a>The &quot;standard&quot; column in the output looks like what has been reported in the paper (see quote below) regarding χ2, RMSEA, and CFI. Good to see that it is reproducible.</span>
+<span id="cb21-92"><a href="#cb21-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-93"><a href="#cb21-93" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; A single-factor solution for the Confirmatory factor analysis for the Questionnaire on</span></span>
+<span id="cb21-94"><a href="#cb21-94" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001,</span></span>
+<span id="cb21-95"><a href="#cb21-95" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 </span><span class="co">[</span><span class="ot">90% CI: 0.043, 0.051</span><span class="co">]</span><span class="at">. Thus, our single-</span></span>
+<span id="cb21-96"><a href="#cb21-96" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</span></span>
+<span id="cb21-97"><a href="#cb21-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-98"><a href="#cb21-98" aria-hidden="true" tabindex="-1"></a>Let&#39;s run the CFA function call with <span class="in">`ordered = TRUE`</span> added to make the WLSMV estimator, which was correctly described in the paper, work as intended.</span>
+<span id="cb21-99"><a href="#cb21-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-102"><a href="#cb21-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-103"><a href="#cb21-103" aria-hidden="true" tabindex="-1"></a>cfamodel2 <span class="ot">&lt;-</span> <span class="fu">sem</span>(<span class="at">model =</span> onefactor, <span class="at">data =</span> dd, <span class="at">estimator =</span> <span class="st">&quot;WLSMV&quot;</span>, <span class="at">ordered =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-104"><a href="#cb21-104" aria-hidden="true" tabindex="-1"></a>cfamodel2 <span class="sc">%&gt;%</span> <span class="fu">summary</span>(<span class="at">standardized=</span>T, <span class="at">ci=</span>F, <span class="at">fit.measures=</span> <span class="cn">TRUE</span>, )</span>
+<span id="cb21-105"><a href="#cb21-105" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-106"><a href="#cb21-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-107"><a href="#cb21-107" aria-hidden="true" tabindex="-1"></a>Before looking closer at the results and making comparisons to the published/reported metrics, we need to address the issue of reporting the correct model fit metrics. For WLSMV, the <span class="co">[</span><span class="ot">.scaled metrics should be used</span><span class="co">](https://rpubs.com/dmcneish/1025400)</span>. </span>
+<span id="cb21-108"><a href="#cb21-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-109"><a href="#cb21-109" aria-hidden="true" tabindex="-1"></a>Also, the Hu &amp; Bentler <span class="co">[</span><span class="ot">-@hu_cutoff_1999</span><span class="co">]</span> cutoff values references in the paper are not appropriate for ordinal data analyzed with the WLSMV estimator <span class="co">[</span><span class="ot">@mcneish_dynamic_2023;@savalei_computation_2018</span><span class="co">]</span>. The R-package <span class="in">`dynamic`</span> can produce <span class="co">[</span><span class="ot">appropriate cutoff values</span><span class="co">](&lt;https://rpubs.com/dmcneish/1025400&gt;)</span> for model fit indices. We&#39;ll get into that after reviewing the scaled fit metrics.</span>
+<span id="cb21-110"><a href="#cb21-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-111"><a href="#cb21-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Scaled fit metrics</span></span>
+<span id="cb21-112"><a href="#cb21-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-113"><a href="#cb21-113" aria-hidden="true" tabindex="-1"></a>Another important issue is reporting the correct model fit metrics. For WLSMV, <span class="co">[</span><span class="ot">the .scaled metrics should be used</span><span class="co">](https://rpubs.com/dmcneish/1025400)</span>.</span>
+<span id="cb21-114"><a href="#cb21-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-117"><a href="#cb21-117" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-118"><a href="#cb21-118" aria-hidden="true" tabindex="-1"></a>fit_metrics_scaled <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;chisq.scaled&quot;</span>, <span class="st">&quot;df&quot;</span>, <span class="st">&quot;pvalue.scaled&quot;</span>, </span>
+<span id="cb21-119"><a href="#cb21-119" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;cfi.scaled&quot;</span>, <span class="st">&quot;tli.scaled&quot;</span>, <span class="st">&quot;rmsea.scaled&quot;</span>, </span>
+<span id="cb21-120"><a href="#cb21-120" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;rmsea.ci.lower.scaled&quot;</span>,<span class="st">&quot;rmsea.ci.upper.scaled&quot;</span>,</span>
+<span id="cb21-121"><a href="#cb21-121" aria-hidden="true" tabindex="-1"></a>                        <span class="st">&quot;srmr&quot;</span>)</span>
+<span id="cb21-122"><a href="#cb21-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-123"><a href="#cb21-123" aria-hidden="true" tabindex="-1"></a><span class="fu">fitmeasures</span>(cfamodel2, fit_metrics_scaled) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-124"><a href="#cb21-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb21-125"><a href="#cb21-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb21-126"><a href="#cb21-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric),<span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb21-127"><a href="#cb21-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Chi2.scaled =</span> chisq.scaled,</span>
+<span id="cb21-128"><a href="#cb21-128" aria-hidden="true" tabindex="-1"></a>         <span class="at">p.scaled =</span> pvalue.scaled,</span>
+<span id="cb21-129"><a href="#cb21-129" aria-hidden="true" tabindex="-1"></a>         <span class="at">CFI.scaled =</span> cfi.scaled,</span>
+<span id="cb21-130"><a href="#cb21-130" aria-hidden="true" tabindex="-1"></a>         <span class="at">TLI.scaled =</span> tli.scaled,</span>
+<span id="cb21-131"><a href="#cb21-131" aria-hidden="true" tabindex="-1"></a>         <span class="at">RMSEA.scaled =</span> rmsea.scaled,</span>
+<span id="cb21-132"><a href="#cb21-132" aria-hidden="true" tabindex="-1"></a>         <span class="at">CI_low.scaled =</span> rmsea.ci.lower.scaled,</span>
+<span id="cb21-133"><a href="#cb21-133" aria-hidden="true" tabindex="-1"></a>         <span class="at">CI_high.scaled =</span> rmsea.ci.upper.scaled,</span>
+<span id="cb21-134"><a href="#cb21-134" aria-hidden="true" tabindex="-1"></a>         <span class="at">SRMR =</span> srmr) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-135"><a href="#cb21-135" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span>
+<span id="cb21-136"><a href="#cb21-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-137"><a href="#cb21-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-138"><a href="#cb21-138" aria-hidden="true" tabindex="-1"></a>Again, these were the metrics reported in the paper:</span>
+<span id="cb21-139"><a href="#cb21-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-140"><a href="#cb21-140" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; A single-factor solution for the Confirmatory factor analysis for the Questionnaire on</span></span>
+<span id="cb21-141"><a href="#cb21-141" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; Well-Being. QWB resulted in a good fit for the data: χ2(135) = 603.03, p &lt; 0.001,</span></span>
+<span id="cb21-142"><a href="#cb21-142" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 </span><span class="co">[</span><span class="ot">90% CI: 0.043, 0.051</span><span class="co">]</span><span class="at">. Thus, our single-</span></span>
+<span id="cb21-143"><a href="#cb21-143" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; factor model for the QWB exhibits all of our predetermined criteria for a good model fit.</span></span>
+<span id="cb21-144"><a href="#cb21-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-145"><a href="#cb21-145" aria-hidden="true" tabindex="-1"></a>The differences from the model fit metrics output in the table above and found in the paper are partially due to the missing <span class="in">`ordered = TRUE`</span> option, but also from reporting the wrong metrics for the WLSMV estimator.</span>
+<span id="cb21-146"><a href="#cb21-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-147"><a href="#cb21-147" aria-hidden="true" tabindex="-1"></a>The correct model fit metrics indicate problems, no matter which cutoffs one would use, especially regarding RMSEA. Let us review the modification indices.</span>
+<span id="cb21-148"><a href="#cb21-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-149"><a href="#cb21-149" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modification indices</span></span>
+<span id="cb21-150"><a href="#cb21-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-151"><a href="#cb21-151" aria-hidden="true" tabindex="-1"></a>We&#39;ll filter the list and only present those with mi/χ2 &gt; 30.</span>
+<span id="cb21-152"><a href="#cb21-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-155"><a href="#cb21-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-156"><a href="#cb21-156" aria-hidden="true" tabindex="-1"></a><span class="fu">modificationIndices</span>(cfamodel2,</span>
+<span id="cb21-157"><a href="#cb21-157" aria-hidden="true" tabindex="-1"></a>                    <span class="at">standardized =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-158"><a href="#cb21-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="at">row.names =</span> <span class="cn">NULL</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-159"><a href="#cb21-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(mi <span class="sc">&gt;</span> <span class="dv">30</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-160"><a href="#cb21-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(mi)) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-161"><a href="#cb21-161" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric),<span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb21-162"><a href="#cb21-162" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span>
+<span id="cb21-163"><a href="#cb21-163" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-164"><a href="#cb21-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-165"><a href="#cb21-165" aria-hidden="true" tabindex="-1"></a>Many very large mi/χ2 values due to residual correlations.</span>
+<span id="cb21-166"><a href="#cb21-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-167"><a href="#cb21-167" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dynamic cutoff values</span></span>
+<span id="cb21-168"><a href="#cb21-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-169"><a href="#cb21-169" aria-hidden="true" tabindex="-1"></a>As mentioned earlier, the often used Hu &amp; Bentler <span class="co">[</span><span class="ot">-@hu_cutoff_1999</span><span class="co">]</span> cutoff values are based on simulations of continuous data and ML estimation. In order to establish useful cutoff values for the WLSMV estimator with ordinal data, we need to run simulations relevant to the current set of items and response data <span class="co">[</span><span class="ot">@mcneish_dynamic_2023</span><span class="co">]</span>. This has been implemented in the <span class="co">[</span><span class="ot">development version</span><span class="co">](https://github.com/melissagwolf/dynamic?tab=readme-ov-file)</span> of <span class="in">`dynamic`</span>.</span>
+<span id="cb21-170"><a href="#cb21-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-173"><a href="#cb21-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-174"><a href="#cb21-174" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dynamic) <span class="co"># devtools::install_github(&quot;melissagwolf/dynamic&quot;) for development version</span></span>
+<span id="cb21-175"><a href="#cb21-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-176"><a href="#cb21-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-179"><a href="#cb21-179" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-180"><a href="#cb21-180" aria-hidden="true" tabindex="-1"></a>dyncut <span class="ot">&lt;-</span> <span class="fu">catOne</span>(cfamodel2, <span class="at">reps =</span> <span class="dv">500</span>)</span>
+<span id="cb21-181"><a href="#cb21-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-182"><a href="#cb21-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-185"><a href="#cb21-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-186"><a href="#cb21-186" aria-hidden="true" tabindex="-1"></a>dyncut</span>
+<span id="cb21-187"><a href="#cb21-187" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-188"><a href="#cb21-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-189"><a href="#cb21-189" aria-hidden="true" tabindex="-1"></a>Explanations on Levels 0-3 from the <span class="in">`dynamic`</span> <span class="co">[</span><span class="ot">package vignette</span><span class="co">](https://rpubs.com/dmcneish/1025400)</span>:</span>
+<span id="cb21-190"><a href="#cb21-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-191"><a href="#cb21-191" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; When there are 6 or more items, cfaOne will consider three levels of misspecification. As in catHB, the Level-0 row corresponds to the anticipated fit index values if the fitted model were the exact underlying population model. The Level-1 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-2 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-3 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between all item pairs.</span></span>
+<span id="cb21-192"><a href="#cb21-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-193"><a href="#cb21-193" aria-hidden="true" tabindex="-1"></a>As we can see, the observed/empirical fit metrics from the data does not come close to even the Level-3 simulation based cutoff values.</span>
+<span id="cb21-194"><a href="#cb21-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-195"><a href="#cb21-195" aria-hidden="true" tabindex="-1"></a><span class="fu">## Summary comments</span></span>
+<span id="cb21-196"><a href="#cb21-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-197"><a href="#cb21-197" aria-hidden="true" tabindex="-1"></a>The 18 items do not fit a unidimensional model, due to issues with residual correlations and potential multidimensionality.</span>
+<span id="cb21-198"><a href="#cb21-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-199"><a href="#cb21-199" aria-hidden="true" tabindex="-1"></a><span class="fu">## Software used</span></span>
+<span id="cb21-202"><a href="#cb21-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb21-203"><a href="#cb21-203" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb21-204"><a href="#cb21-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb21-205"><a href="#cb21-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-206"><a href="#cb21-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
