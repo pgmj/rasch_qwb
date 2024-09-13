@@ -96,13 +96,13 @@ cfamodel2 <- sem(model = onefactor, data = dd, estimator = "WLSMV", ordered = TR
 cfamodel2 %>% summary(standardized=T, ci=F, fit.measures= TRUE, )
 ```
 
-Before looking closer at the results and making comparisons to the published/reported metrics, we need to address the issue of reporting the correct model fit metrics. For WLSMV, the [.scaled metrics should be used](https://rpubs.com/dmcneish/1025400). 
+Before looking closer at the results and making comparisons to the published/reported metrics, we need to address the issue of reporting the correct, scaled model fit metrics.
 
-Also, the Hu & Bentler [-@hu_cutoff_1999] cutoff values references in the paper are not appropriate for ordinal data analyzed with the WLSMV estimator [@mcneish_dynamic_2023;@savalei_computation_2018]. The R-package `dynamic` can produce [appropriate cutoff values](<https://rpubs.com/dmcneish/1025400>) for model fit indices. We'll get into that after reviewing the scaled fit metrics.
+The often used Hu & Bentler [-@hu_cutoff_1999] cutoff values (also used in the paper) are based on simulations of continuous data and ML estimation. As such, they are not appropriate for ordinal data analyzed with the WLSMV estimator [@mcneish_dynamic_2023;@savalei_computation_2018]. The R-package `dynamic` can produce [appropriate cutoff values](<https://rpubs.com/dmcneish/1025400>) for model fit indices. We'll get into that after reviewing the scaled fit metrics and modification indices.
 
 ### Scaled fit metrics
 
-Another important issue is reporting the correct model fit metrics. For WLSMV, [the .scaled metrics should be used](https://rpubs.com/dmcneish/1025400).
+For WLSMV, [the .scaled metrics should be reported](https://rpubs.com/dmcneish/1025400).
 
 ```{r}
 fit_metrics_scaled <- c("chisq.scaled", "df", "pvalue.scaled", 
@@ -132,7 +132,7 @@ Again, these were the metrics reported in the paper:
 > CFI = 0.988, SRMR = 0.053, RMSEA = 0.047 [90% CI: 0.043, 0.051]. Thus, our single-
 > factor model for the QWB exhibits all of our predetermined criteria for a good model fit.
 
-The differences from the model fit metrics output in the table above and found in the paper are partially due to the missing `ordered = TRUE` option, but also from reporting the wrong metrics for the WLSMV estimator.
+The differences from the model fit metrics output in the table above and those found in the paper are partially due to the missing `ordered = TRUE` option, but also from reporting the wrong metrics for the WLSMV estimator.
 
 The correct model fit metrics indicate problems, no matter which cutoffs one would use, especially regarding RMSEA. Let us review the modification indices.
 
@@ -154,7 +154,7 @@ Many very large mi/χ2 values due to residual correlations.
 
 ### Dynamic cutoff values
 
-As mentioned earlier, the often used Hu & Bentler [-@hu_cutoff_1999] cutoff values are based on simulations of continuous data and ML estimation. In order to establish useful cutoff values for the WLSMV estimator with ordinal data, we need to run simulations relevant to the current set of items and response data [@mcneish_dynamic_2023]. This has been implemented in the [development version](https://github.com/melissagwolf/dynamic?tab=readme-ov-file) of `dynamic`.
+In order to establish useful cutoff values for the WLSMV estimator with ordinal data, we need to run simulations relevant to the current set of items and response data [@mcneish_dynamic_2023]. This has been implemented in the [development version](https://github.com/melissagwolf/dynamic?tab=readme-ov-file) of `dynamic`.
 
 ```{r}
 library(dynamic) # devtools::install_github("melissagwolf/dynamic") for development version
@@ -172,7 +172,7 @@ Explanations on Levels 0-3 from the `dynamic` [package vignette](https://rpubs.c
 
 > When there are 6 or more items, cfaOne will consider three levels of misspecification. As in catHB, the Level-0 row corresponds to the anticipated fit index values if the fitted model were the exact underlying population model. The Level-1 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-2 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between approximately 1/3 of item pairs. The Level-3 row corresponds to the anticipated fit index values if the fitted model omitted 0.30 residual correlations between all item pairs.
 
-As we can see, the observed/empirical fit metrics from the data does not come close to even the Level-3 simulation based cutoff values.
+As we can see, the observed/empirical fit metrics from the data does not come close to the Level-3 simulation based cutoff values.
 
 ## Summary comments
 
