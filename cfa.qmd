@@ -22,7 +22,7 @@ format:
     mainfont: 'Lato'
     monofont: 'Roboto Mono'
     code-overflow: wrap
-    code-fold: false
+    code-fold: show
     code-tools: true
     code-link: true
     number-sections: true
@@ -56,6 +56,7 @@ library(readxl)
 library(tidyverse)
 library(lavaan)
 library(patchwork)
+library(knitr)
 ```
 
 Questionnaire on Well-Being (QWB), 18 items, each item is scored on a scale of 0 to 4 [@hlynsson_evaluating_2024]. Data from the same paper. We'll use the data from the second study that was used in the CFA in the paper.
@@ -177,6 +178,381 @@ As we can see, the observed/empirical fit metrics from the data does not come cl
 ## Summary comments
 
 The 18 items do not fit a unidimensional model, due to issues with residual correlations and potential multidimensionality.
+
+## Exploratory factor analysis
+
+Let's look at the data using EFA. A lot of the code for this analysis was borrowed from <https://solomonkurz.netlify.app/blog/2021-05-11-yes-you-can-fit-an-exploratory-factor-analysis-with-lavaan/>
+
+```{r}
+f1 <- 'efa("efa")*f1 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +
+                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + 
+                    swb16 + swb17 + swb18'
+
+# 2-factor model
+f2 <- 'efa("efa")*f1 + 
+       efa("efa")*f2 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +
+                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + 
+                    swb16 + swb17 + swb18'
+
+# 3-factor
+f3 <- '
+efa("efa")*f1 +
+efa("efa")*f2 +
+efa("efa")*f3 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +
+                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + 
+                    swb16 + swb17 + swb18'
+
+# 4-factor
+f4 <- '
+efa("efa")*f1 +
+efa("efa")*f2 +
+efa("efa")*f3 +
+efa("efa")*f4 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +
+                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + 
+                    swb16 + swb17 + swb18'
+
+# 5-factor
+f5 <- '
+efa("efa")*f1 +
+efa("efa")*f2 +
+efa("efa")*f3 +
+efa("efa")*f4 + 
+efa("efa")*f5 =~ swb1 + swb2 + swb3 + swb4 + swb5 + swb6 + swb7 + swb8 +
+                    swb9 + swb10 + swb11 + swb12 + swb13 + swb14 + swb15 + 
+                    swb16 + swb17 + swb18'
+
+efa_f1 <- 
+  cfa(model = f1,
+      data = dd,
+      rotation = "oblimin",
+      estimator = "WLSMV",
+      ordered = TRUE)
+efa_f2 <- 
+  cfa(model = f2,
+      data = dd,
+      rotation = "oblimin",
+      estimator = "WLSMV",
+      ordered = TRUE)
+efa_f3 <- 
+  cfa(model = f3,
+      data = dd,
+      rotation = "oblimin",
+      estimator = "WLSMV",
+      ordered = TRUE)
+efa_f4 <- 
+  cfa(model = f4,
+      data = dd,
+      rotation = "oblimin",
+      estimator = "WLSMV",
+      ordered = TRUE)
+efa_f5 <- 
+  cfa(model = f5,
+      data = dd,
+      rotation = "oblimin",
+      estimator = "WLSMV",
+      ordered = TRUE)
+
+```
+
+### Model fit table
+
+```{r}
+rbind(
+  fitmeasures(efa_f1, fit_metrics_scaled),
+  fitmeasures(efa_f2, fit_metrics_scaled),
+  fitmeasures(efa_f3, fit_metrics_scaled),
+  fitmeasures(efa_f4, fit_metrics_scaled),
+  fitmeasures(efa_f5, fit_metrics_scaled)
+  ) %>% 
+  as.data.frame() %>% 
+  mutate(across(where(is.numeric),~ round(.x, 3))) %>%
+  rename(Chi2.scaled = chisq.scaled,
+         p.scaled = pvalue.scaled,
+         CFI.scaled = cfi.scaled,
+         TLI.scaled = tli.scaled,
+         RMSEA.scaled = rmsea.scaled,
+         CI_low.scaled = rmsea.ci.lower.scaled,
+         CI_high.scaled = rmsea.ci.upper.scaled,
+         SRMR = srmr) %>% 
+  add_column(Model = paste0(1:5,"-factor"), .before = "Chi2.scaled") %>% 
+  knitr::kable()
+```
+
+### Plot 4-factor EFA
+
+```{r}
+#| fig-height: 8
+standardizedsolution(efa_f4) %>% 
+  filter(op == "=~") %>% 
+  mutate(item  = str_remove(rhs, "swb") %>% as.double(),
+         factor = str_remove(lhs, "f")) %>% 
+  # plot
+  ggplot(aes(x = est.std, xmin = ci.lower, xmax = ci.upper, y = item)) +
+  annotate(geom = "rect",
+           xmin = -1, xmax = 1,
+           ymin = -Inf, ymax = Inf,
+           fill = "grey90") +
+  annotate(geom = "rect",
+           xmin = -0.7, xmax = 0.7,
+           ymin = -Inf, ymax = Inf,
+           fill = "grey93") +
+  annotate(geom = "rect",
+           xmin = -0.4, xmax = 0.4,
+           ymin = -Inf, ymax = Inf,
+           fill = "grey96") +
+  geom_vline(xintercept = 0, color = "white") +
+  geom_pointrange(aes(alpha = abs(est.std) < 0.4),
+                  fatten = 10) +
+  geom_text(aes(label = item, color = abs(est.std) < 0.4),
+            size = 4) +
+  scale_color_manual(values = c("white", "transparent")) +
+  scale_alpha_manual(values = c(1, 1/3)) +
+  scale_x_continuous(expression(lambda[standardized]), 
+                     expand = c(0, 0), limits = c(-1, 1),
+                     breaks = c(-1, -0.7, -0.4, 0, 0.4, 0.7, 1),
+                     labels = c("-1", "-.7", "-.4", "0", ".4", ".7", "1")) +
+  scale_y_continuous(breaks = 1:18, sec.axis = sec_axis(~ . * 1, breaks = 1:18)) +
+  ggtitle("Factor loadings for the 4-factor model") +
+  theme(legend.position = "none") +
+  facet_wrap(~ factor, labeller = label_both) 
+```
+
+### EFA comments
+
+As we saw in the CFA modification indices, I think most issues stem from residual correlations - some items are too similar and one in each correlated pair needs to be removed. 
+
+Looking at the 4-factor solution, we have one factor with 1 item, two with 4 items, and one with 7 items.
+
+  Let's review the 7 items with standardized loadings > 0.4 from the factor with most items in the 4-factor solution.
+
+```{r}
+#| warning: false
+#| message: false
+items <- standardizedsolution(efa_f4) %>% 
+  filter(op == "=~",
+         lhs == "f3",
+         est.std > 0.4) %>% 
+  pull(rhs)
+
+itemlabels <- read_csv("data/itemlabels_swb.csv") %>% 
+  mutate(itemnr = paste0("swb",1:18))
+
+standardizedsolution(efa_f4) %>% 
+  filter(op == "=~",
+         lhs == "f3",
+         est.std > 0.4) %>% 
+  arrange(desc(est.std)) %>% 
+  mutate_if(is.numeric, ~ round(.x, 3)) %>% 
+  dplyr::select(!c(lhs,op,z,pvalue)) %>% 
+  dplyr::rename(itemnr = rhs,
+                loading = est.std) %>% 
+  left_join(itemlabels, by = "itemnr") %>% 
+  knitr::kable()
+```
+
+## Brief Rasch analysis
+
+For fun, let's see how the 7 items from the EFA above work as a unidimensional scale using Rasch Measurement Theory.
+
+```{r}
+#| warning: false
+#| message: false
+library(RISEkbmRasch) # install first with `devtools::install_github("pgmj/RISEkbmRasch")`
+df <- dd %>% 
+  dplyr::select(all_of(items)) %>% 
+  na.omit()
+```
+
+The eRm package, which uses Conditional Maximum Likelihood (CML)
+estimation, will be used primarily. For this analysis of polytomous data, the Partial
+Credit Model will be used.
+
+```{r}
+#| column: margin
+#| echo: false
+RIlistItemsMargin(df, fontsize = 13)
+```
+
+::: panel-tabset
+### Conditional item fit
+```{r}
+#| warning: false
+#| message: false
+simfit1 <- RIgetfit(df, iterations = 500, cpu = 8) 
+RIitemfit(df, simfit1)
+RIgetfitPlot(simfit1, df)
+```
+### CICC
+```{r}
+#| warning: false
+#| message: false
+ICCplot(as.data.frame(df), 
+        itemnumber = 2, 
+        method = "cut", 
+        itemdescrip = c("item 8"))
+
+### also suggested:
+library(RASCHplot) # install first with `devtools::install_github("ERRTG/RASCHplot")`
+CICCplot(PCM(df),
+         which.item = 2,
+         lower.groups = c(0,6,12,17,23),
+         grid.items = FALSE)
+```
+### Item-restscore
+```{r}
+item_restscore(PCM(df))
+```
+### PCA
+```{r}
+#| tbl-cap: "PCA of Rasch model residuals"
+RIpcmPCA(df)
+```
+### Residual correlations
+```{r}
+simcor1 <- RIgetResidCor(df, iterations = 500, cpu = 8)
+RIresidcorr(df, cutoff = simcor1$p99)
+```
+### 1st contrast loadings
+```{r}
+RIloadLoc(df)
+```
+### Response categories
+```{r}
+mirt(df, model=1, itemtype='Rasch', verbose = FALSE) %>% 
+  plot(type="trace", as.table = TRUE, 
+       theta_lim = c(-8,8))
+```
+### Targeting
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 5
+# increase fig-height above as needed, if you have many items
+RItargeting(df)
+```
+### Item hierarchy
+```{r}
+#| fig-height: 5
+RIitemHierarchy(df)
+```
+### DIF score groups
+```{r}
+iarm::score_groups(as.data.frame(df)) %>% 
+  as.data.frame(nm = "score_group") %>% 
+  dplyr::count(score_group)
+
+dif_plots <- df %>% 
+  add_column(dif = iarm::score_groups(.)) %>% 
+  mutate(dif = factor(dif, labels = c("Below median score","Above median score"))) %>% 
+  split(.$dif) %>% # split the data using the DIF variable
+  map(~ RItileplot(.x %>% dplyr::select(!dif)) + labs(title = .x$dif))
+dif_plots[[1]] + dif_plots[[2]]
+```
+:::
+
+### Rasch analysis comments
+
+Item 8 shows misfit and has a residual correlation with item 7. We'll remove it and run the analysis again.
+
+We have no demographic information, which makes invariance/DIF difficult to evaluate. I tried splitting the data into score groups based on median score, but the high scoring group had too much missing data in lower response categories for analysis to be feasible.
+
+```{r}
+df$swb8 <- NULL
+```
+
+## Rasch analysis 2
+
+```{r}
+#| column: margin
+#| echo: false
+RIlistItemsMargin(df, fontsize = 13)
+```
+
+::: panel-tabset
+### Conditional item fit
+```{r}
+simfit2 <- RIgetfit(df, iterations = 500, cpu = 8) 
+RIitemfit(df, simfit2)
+RIgetfitPlot(simfit2, df)
+```
+### CICC
+```{r}
+#| warning: false
+#| message: false
+ICCplot(as.data.frame(df), 
+        itemnumber = c(2,4), 
+        method = "cut", 
+        itemdescrip = c("item 9","item 11"))
+
+### also suggested:
+library(RASCHplot) # install first with `devtools::install_github("ERRTG/RASCHplot")`
+CICCplot(PCM(df),
+         which.item = c(2,4),
+         lower.groups = c(0,6,12,18),
+         grid.items = TRUE)
+```
+### Item-restscore
+```{r}
+item_restscore(PCM(df))
+```
+### PCA
+```{r}
+#| tbl-cap: "PCA of Rasch model residuals"
+RIpcmPCA(df)
+```
+### Residual correlations
+```{r}
+simcor2 <- RIgetResidCor(df, iterations = 500, cpu = 8)
+RIresidcorr(df, cutoff = simcor2$p99)
+```
+### 1st contrast loadings
+```{r}
+RIloadLoc(df)
+```
+### Targeting
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 5
+# increase fig-height above as needed, if you have many items
+RItargeting(df)
+```
+### Item hierarchy
+```{r}
+#| fig-height: 5
+RIitemHierarchy(df)
+```
+### Reliability
+```{r}
+#| warning: false
+#| message: false
+RItif(df, cutoff = 2.5, samplePSI = TRUE)
+SepRel(PCM(df) %>% person.parameter())
+```
+### Person fit
+```{r}
+RIpfit(df)
+```
+### Item parameters
+```{r}
+RIitemparams(df)
+```
+### Sum score->Interval score
+```{r}
+RIscoreSE(df, output = "figure")
+RIscoreSE(df)
+```
+:::
+
+### Rasch analysis comments
+
+A set of items with decent psychometric properties. Reliability could be higher and targeting shows a minor ceiling effect, which all well-being questionnaires seem to have to some degree.
+
+```{r}
+RIlistitems(df)
+```
+
+
 
 ## Software used
 ```{r}

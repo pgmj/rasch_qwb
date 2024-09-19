@@ -1,6 +1,5 @@
 ---
-title: "Questionnaire on Well-Being
-(QWB)"
+title: "Questionnaire on Well-Being (QWB)"
 subtitle: "Rasch analysis"
 title-block-banner: "#009ca6"
 title-block-banner-color: "#FFFFFF"
@@ -98,29 +97,31 @@ to 4 [@hlynsson_evaluating_2024]. Data from the same paper. We'll use the data f
 
 ### Load item information
 # make sure that variable names in df match with itemlabels$itemnr
-itemlabels <- data.frame(stringsAsFactors = FALSE,
-           itemnr = paste0("q",1:18),
+itemlabels <- data.frame(
+  stringsAsFactors = FALSE,
+  itemnr = paste0("q", 1:18),
   item = c(
-                                                      "... felt calm and relaxed?",
-                                                      "... had a good appetite and enjoyed eating?",
-                                                      "... have been able to take initiatives and get started with what you wanted to do?",
-                                                      "... felt optimistic and viewed things on the bright side?",
-                                                      "... felt active and filled with energy?",
-                                                      "... felt a strong zest for life?",
-                                                      "... been able to object and to assert yourself when this is needed?",
-                                                      "... felt satisfied with your life in its present situation?",
-                                                      "... felt that your life is meaningful?",
-                                                      "... slept well and got the right amount of sleep?",
-                                                      "... have been able to be focused and concentrated on today’s tasks?",
-                                                      "... felt interested in various activities and in people around you?",
-                                                      "... felt happy and harmonious?",
-                                                      "... felt satisfied with yourself?",
-                                                      "... been able to make decisions and carry them out?",
-                                                      "... been able to stay in the here and now and to let go of thoughts about problems?",
-                                                      "... had the power to recover one’s strength if something has been stressful or difficult?",
-                                                      "... felt that you are well and healthy?")
+    "... felt calm and relaxed?",
+    "... had a good appetite and enjoyed eating?",
+    "... have been able to take initiatives and get started with what you wanted to do?",
+    "... felt optimistic and viewed things on the bright side?",
+    "... felt active and filled with energy?",
+    "... felt a strong zest for life?",
+    "... been able to object and to assert yourself when this is needed?",
+    "... felt satisfied with your life in its present situation?",
+    "... felt that your life is meaningful?",
+    "... slept well and got the right amount of sleep?",
+    "... have been able to be focused and concentrated on today’s tasks?",
+    "... felt interested in various activities and in people around you?",
+    "... felt happy and harmonious?",
+    "... felt satisfied with yourself?",
+    "... been able to make decisions and carry them out?",
+    "... been able to stay in the here and now and to let go of thoughts about problems?",
+    "... had the power to recover one’s strength if something has been stressful or difficult?",
+    "... felt that you are well and healthy?"
+  )
 )
-
+#write_csv(itemlabels,"data/itemlabels_swb.csv")
 ```
 
 ```{r}
@@ -542,9 +543,9 @@ RIlistItemsMargin(df, fontsize = 13)
 ### Conditional item fit
 
 ```{r}
-simfit2 <- RIgetfit(df, iterations = 500, cpu = 8) 
+simfit3 <- RIgetfit(df, iterations = 500, cpu = 8) 
 
-RIitemfit(df, simfit2, sort = "infit")
+RIitemfit(df, simfit3, sort = "infit")
 #RIgetfitPlot(simfit1, df)
 boot_fit(PCM(df), B = 50)
 ```
@@ -582,7 +583,94 @@ RIitemHierarchy(df)
 ```
 :::
 
-Item 14
+Item 14 high fit. Item 17 has two residual correlations.
+
+## Rasch analysis 5
+
+Removing item 17.
+
+```{r}
+removed_items <- c("q2","q3","q13","q18","q5","q8","q4","q6","q12","q17")
+
+df <- df_backup %>% 
+  select(!all_of(removed_items))
+```
+
+
+```{r}
+#| column: margin
+#| echo: false
+RIlistItemsMargin(df, fontsize = 13)
+```
+
+::: panel-tabset
+### Conditional item fit
+
+```{r}
+simfit3 <- RIgetfit(df, iterations = 500, cpu = 8) 
+
+RIitemfit(df, simfit3, sort = "infit")
+#RIgetfitPlot(simfit1, df)
+boot_fit(PCM(df), B = 50)
+```
+
+### Item-restscore
+```{r}
+item_restscore(PCM(df))
+```
+### PCA
+```{r}
+#| tbl-cap: "PCA of Rasch model residuals"
+RIpcmPCA(df)
+```
+### Residual correlations
+
+```{r}
+simcor2 <- RIgetResidCor(df, iterations = 500, cpu = 8)
+RIresidcorr(df, cutoff = simcor2$p99)
+```
+### 1st contrast loadings
+```{r}
+RIloadLoc(df)
+```
+
+### Targeting
+```{r}
+#| fig-height: 5
+# increase fig-height above as needed, if you have many items
+RItargeting(df)
+```
+### Item hierarchy
+```{r}
+#| fig-height: 5
+RIitemHierarchy(df)
+```
+:::
+
+
+## Mokken
+
+```{r}
+library(mokken)
+dm <- df_backup
+
+aisp(dm)
+coefH(dm)
+
+mon1 <- check.monotonicity(dm)
+summary(mon1)
+plot(mon1, ask = FALSE)
+
+iio1 <- check.iio(dm)
+summary(iio1)
+
+pmatr1 <- check.pmatrix(dm)
+summary(pmatr1)
+plot(pmatr1)
+
+restsc1 <- check.restscore(dm)
+summary(restsc1)
+```
 
 
 ## Person fit
