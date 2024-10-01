@@ -1,6 +1,6 @@
 ---
 title: "Questionnaire on Well-Being (QWB)"
-subtitle: "CFA"
+subtitle: "Psychometric analysis"
 title-block-banner: "#009ca6"
 title-block-banner-color: "#FFFFFF"
 author: 
@@ -363,10 +363,6 @@ df <- dd %>%
   na.omit()
 ```
 
-The eRm package, which uses Conditional Maximum Likelihood (CML)
-estimation, will be used primarily. For this analysis of polytomous data, the Partial
-Credit Model will be used.
-
 ```{r}
 #| column: margin
 #| echo: false
@@ -400,7 +396,7 @@ CICCplot(PCM(df),
 ```
 ### Item-restscore
 ```{r}
-item_restscore(PCM(df))
+RIrestscore(df)
 ```
 ### PCA
 ```{r}
@@ -411,6 +407,7 @@ RIpcmPCA(df)
 ```{r}
 simcor1 <- RIgetResidCor(df, iterations = 500, cpu = 8)
 RIresidcorr(df, cutoff = simcor1$p99)
+
 ```
 ### 1st contrast loadings
 ```{r}
@@ -450,9 +447,14 @@ dif_plots[[1]] + dif_plots[[2]]
 ```
 :::
 
-### Rasch analysis comments
+### Rasch analysis 1 comments
 
-Item 8 shows misfit and has a residual correlation with item 7. We'll remove it and run the analysis again.
+Item 8 shows misfit and has a residual correlation with item 7. 
+
+- swb7 - been able to object and to assert yourself when this is needed?
+- swb8 - felt satisfied with your life in its present situation?
+
+We'll remove item 8 and run the analysis again. Several other item pairs also have problematic residual correlations, but we'll start with removing one item and see how that affects the others.
 
 We have no demographic information, which makes invariance/DIF difficult to evaluate. I tried splitting the data into score groups based on median score, but the high scoring group had too much missing data in lower response categories for analysis to be feasible.
 
@@ -493,7 +495,7 @@ CICCplot(PCM(df),
 ```
 ### Item-restscore
 ```{r}
-item_restscore(PCM(df))
+RIrestscore(df)
 ```
 ### PCA
 ```{r}
@@ -504,6 +506,89 @@ RIpcmPCA(df)
 ```{r}
 simcor2 <- RIgetResidCor(df, iterations = 500, cpu = 8)
 RIresidcorr(df, cutoff = simcor2$p99)
+
+```
+### 1st contrast loadings
+```{r}
+RIloadLoc(df)
+```
+### Targeting
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 5
+# increase fig-height above as needed, if you have many items
+RItargeting(df)
+```
+### Item hierarchy
+```{r}
+#| fig-height: 5
+RIitemHierarchy(df)
+```
+### Person fit
+```{r}
+RIpfit(df)
+```
+:::
+
+### Rasch analysis 2 comments
+
+Item 9 is slightly high in item fit and has residual correlations with both item 7 and 10. We'll remove it next
+
+- 9: felt that your life is meaningful?
+- 10: slept well and got the right amount of sleep?
+- 7: been able to object and to assert yourself when this is needed
+
+These are, from my perspective, a bit unexpected residual correlation pairs. While sleep certainly is important for quality of life, I would not expect a strong residual correlation with "life is meaningful". And item 9 and 7 seem even more unexpected. But these are just my reflections.
+
+
+```{r}
+df$swb9 <- NULL
+```
+
+## Rasch analysis 3
+
+```{r}
+#| column: margin
+#| echo: false
+RIlistItemsMargin(df, fontsize = 13)
+```
+
+::: panel-tabset
+### Conditional item fit
+```{r}
+simfit3 <- RIgetfit(df, iterations = 1000, cpu = 8) 
+RIitemfit(df, simfit3)
+RIgetfitPlot(simfit3, df)
+```
+### CICC
+```{r}
+#| warning: false
+#| message: false
+ICCplot(as.data.frame(df), 
+        itemnumber = c(2), 
+        method = "cut", 
+        itemdescrip = c("item 10"))
+
+CICCplot(PCM(df),
+         which.item = c(2),
+         lower.groups = c(0,5,10,15),
+         grid.items = FALSE)
+```
+### Item-restscore
+```{r}
+RIrestscore(df)
+```
+### PCA
+```{r}
+#| tbl-cap: "PCA of Rasch model residuals"
+RIpcmPCA(df)
+```
+### Residual correlations
+```{r}
+simcor3 <- RIgetResidCor(df, iterations = 500, cpu = 8)
+RIresidcorr(df, cutoff = simcor3$p99)
+
 ```
 ### 1st contrast loadings
 ```{r}
@@ -526,7 +611,7 @@ RIitemHierarchy(df)
 ```{r}
 #| warning: false
 #| message: false
-RItif(df, cutoff = 2.5, samplePSI = TRUE)
+RItif(df, cutoff = 2, samplePSI = TRUE)
 SepRel(PCM(df) %>% person.parameter())
 ```
 ### Person fit
@@ -544,15 +629,70 @@ RIscoreSE(df)
 ```
 :::
 
-### Rasch analysis comments
+### Rasch analysis 3 comments
 
-A set of items with decent psychometric properties. Reliability could be higher and targeting shows a minor ceiling effect, which all well-being questionnaires seem to have to some degree.
+Item 10 now shows slightly high item fit, while item-restscore looks ok for all items.
+
+Item 17 has two residual correlations slightly above the cutoff, with items 11 and 15.
+
+- 17: had the power to recover one’s strength if something has been stressful or difficult?
+- 11: have been able to be focused and concentrated on today’s tasks?
+- 15: been able to make decisions and carry them out?
+
+Model fit could probably be improved further by removing item 10 or 17, but we'll leave it for now.
+
+Overall, these are five items with decent psychometric properties. The TIF curve could be better and targeting shows a minor ceiling effect, which all well-being questionnaires seem to have to some degree.
+
+## CFA with 5 items
+
+Based on the previous Rasch analysis.
 
 ```{r}
-RIlistitems(df)
+fiveitems <- 'f1 =~ swb7 + swb10 + swb11 + swb15 + swb17'
+m5 <- cfa(model = fiveitems,
+    data = df,
+    estimator = "WLSMV", ordered = TRUE)
+summary(m5, standardized = TRUE)
 ```
 
+All factor loadings are around 0.80.
 
+### Model fit
+
+We need the simulation based cutoff values to make sense of model fit metrics.
+
+```{r}
+dyncut2 <- catOne(m5, reps = 250)
+```
+
+```{r}
+dyncut2
+```
+
+These are a bit better than level-2 values, which seems acceptable.
+
+### Modification indices
+
+```{r}
+modificationIndices(m5,
+                    standardized = T) %>% 
+  as.data.frame(row.names = NULL) %>% 
+  filter(mi > 3) %>% 
+  arrange(desc(mi)) %>% 
+  mutate(across(where(is.numeric),~ round(.x, 3))) %>%
+  knitr::kable()
+```
+
+Similarly to the Rasch analysis, there are some residual correlations. We can see item 17 involved in three of the six correlated item pairs.
+
+### CTT reliability
+
+Classical test theory assumes reliability to be a constant value across the latent continuum and across all participants.
+
+```{r}
+omega(df, nfactors = 1, poly = TRUE)
+alpha(df)
+```
 
 ## Software used
 ```{r}
