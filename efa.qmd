@@ -123,7 +123,7 @@ df %>%
 df <- na.omit(df)
 ```
 
-We end up with 494 respondents, compared to the 495 in the paper, which seems likely due to them keeping the one person with missing item responses in the dataset. This should not contribute to any noticable differences in analysis outcomes.
+We end up with 494 respondents, which is identical to the complete responders in the paper.
 
 ## All items in the analysis
 ```{r}
